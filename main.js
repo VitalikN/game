@@ -1,24 +1,44 @@
-import "./style.css";
-import javascriptLogo from "./javascript.svg";
-import viteLogo from "/vite.svg";
-import { setupCounter } from "./counter.js";
+import { GameBoard } from "./counter";
 
-document.querySelector("#app").innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`;
+const gameBoard = new GameBoard(6, 7);
+const gameBoardDiv = document.getElementById("gameBoard");
+const updateGameButton = document.getElementById("updateGameButton");
 
-setupCounter(document.querySelector("#counter"));
+function updateGameBoardView() {
+  gameBoardDiv.innerHTML = "";
+
+  let allCellsEmpty = true;
+
+  for (let i = 0; i < gameBoard.rows; i++) {
+    for (let j = 0; j < gameBoard.cols; j++) {
+      const cellDiv = document.createElement("div");
+      cellDiv.classList.add("cell");
+      cellDiv.textContent = gameBoard.board[i][j]
+        ? gameBoard.board[i][j].type
+        : "";
+      if (gameBoard.board[i][j]) {
+        allCellsEmpty = false;
+      }
+
+      cellDiv.addEventListener("click", () => {
+        gameBoard.findAndRemoveGroup(i, j);
+        updateGameBoardView();
+      });
+
+      gameBoardDiv.appendChild(cellDiv);
+    }
+  }
+
+  if (allCellsEmpty && !gameBoard.gameOver) {
+    alert(
+      "Ви успішно закінчили гру! Натискайте 'Почати нову гру', щоб розпочати знову."
+    );
+  }
+}
+
+updateGameButton.addEventListener("click", () => {
+  gameBoard.board = gameBoard.createBoard();
+  updateGameBoardView();
+});
+
+updateGameBoardView();
